@@ -1,0 +1,86 @@
+{% extends 'feed/feed_layout.html' %}
+{% load i18n %}
+{% load bookwyrm_tags %}
+{% load humanize %}
+{% block panel %}
+
+<h1 class="title">
+    {% if tab == 'home' %}
+    {% trans "Home Timeline" %}
+    {% elif tab == 'local' %}
+    {% trans "Local Timeline" %}
+    {% else %}
+    {% trans "Federated Timeline" %}
+    {% endif %}
+</h1>
+<div class="tabs">
+    <ul>
+        <li class="{% if tab == 'home' %}is-active{% endif %}"{% if tab == 'home' %} aria-current="page"{% endif %}>
+            <a href="/#feed">{% trans "Home" %}</a>
+        </li>
+        <li class="{% if tab == 'local' %}is-active{% endif %}"{% if tab == 'local' %} aria-current="page"{% endif %}>
+            <a href="/local#feed">{% trans "Local" %}</a>
+        </li>
+        <li class="{% if tab == 'federated' %}is-active{% endif %}"{% if tab == 'federated' %} aria-current="page"{% endif %}>
+            <a href="/federated#feed">{% trans "Federated" %}</a>
+        </li>
+    </ul>
+</div>
+
+{# announcements and system messages #}
+{% if not activities.number > 1 %}
+<a href="{{ request.path }}" class="transition-y hidden notification is-primary is-block" data-poll-wrapper>
+    {% blocktrans %}load <span data-poll="stream/{{ tab }}">0</span> unread status(es){% endblocktrans %}
+</a>
+
+{% if request.user.show_goal and not goal and tab == 'home' %}
+{% now 'Y' as year %}
+<section class="block">
+    {% include 'snippets/goal_card.html' with year=year %}
+    <hr>
+</section>
+{% endif %}
+
+{% endif %}
+
+{# activity feed #}
+{% if not activities %}
+<p>{% trans "There aren't any activities right now! Try following a user to get started" %}</p>
+{% endif %}
+
+{% for activity in activities %}
+
+{% if not activities.number > 1 and forloop.counter0 == 2 and suggested_users %}
+{# suggested users on the first page, two statuses down #}
+<section class="block">
+    <h2 class="title is-5">{% trans "Who to follow" %}</h2>
+    <div class="columns is-mobile scroll-x mb-0">
+        {% for user in suggested_users %}
+        <div class="column is-flex">
+            <div class="box has-text-centered is-shadowless has-background-white-bis m-0">
+                <a href="{{ user.local_path }}" class="has-text-black">
+                    {% include 'snippets/avatar.html' with user=user large=True %}
+                    <span title="{{ user.display_name }}" class="is-block is-6 has-text-weight-bold">{{ user.display_name|truncatechars:10 }}</span>
+                    <span title="@{{ user|username }}" class="is-block pb-3">@{{ user|username|truncatechars:8 }}</span>
+                </a>
+                {% include 'snippets/follow_button.html' with user=user minimal=True %}
+                {% if user.mutuals %}
+                <p class="help">
+                {% blocktrans with mutuals=user.mutuals|intcomma count counter=user.mutuals %}{{ mutuals }} follower you follow{% plural %}{{ mutuals }} followers you follow{% endblocktrans %}
+                </p>
+                {% elif user.shared_books %}
+                <p class="help">{% blocktrans with shared_books=user.shared_books|intcomma count counter=user.shared_books %}{{ shared_books }} book on your shelves{% plural %}{{ shared_books }} books on your shelves{% endblocktrans %}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a class="help" href="{% url 'directory' %}">View directory <span class="icon icon-arrow-right"></a>
+</section>
+{% endif %}
+<div class="block">
+    {% include 'snippets/status/status.html' with status=activity %}
+</div>
+{% endfor %}
+
+{% endblock %}

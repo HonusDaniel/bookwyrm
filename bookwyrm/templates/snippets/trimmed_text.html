@@ -1,26 +1,40 @@
 {% load bookwyrm_tags %}
+{% load i18n %}
+
 {% with 0|uuid as uuid %}
 {% if full %}
+{% with full|to_markdown|safe as full %}
 
-{% with full|truncatewords_html:60 as trimmed %}
-{% if trimmed != full %}
-<div>
-    <input type="radio" name="show-hide-{{ uuid }}" id="show-{{ uuid }}" class="toggle-control" checked>
-    <blockquote class="content toggle-content hidden"><span dir="auto">{{ trimmed | to_markdown | safe }}</span>
-        <label class="button is-small" for="hide-{{ uuid }}"><div role="button" tabindex="0">show more</div></label>
-    </blockquote>
+{% with full|to_markdown|safe|truncatewords_html:60 as trimmed %}
+{% if not no_trim and trimmed != full %}
+<div id="hide-full-{{ uuid }}">
+    <div class="content" id="trimmed-{{ uuid }}">
+        <div dir="auto">{{ trimmed }}</div>
+
+        <div>
+            {% trans "Show more" as button_text %}
+            {% include 'snippets/toggle/open_button.html' with text=button_text controls_text="full" controls_uid=uuid class="is-small" %}
+        </div>
+    </div>
 </div>
-<div>
-    <input type="radio" name="show-hide-{{ uuid }}" id="hide-{{ uuid }}" class="toggle-control">
-    <blockquote class="content toggle-content hidden"><span dir="auto">{{ full | to_markdown | safe }}</span>
-        <label class="button is-small" for="show-{{ uuid }}"><div role="button" tabindex="0">show less</div></label>
-    </blockquote>
+<div id="full-{{ uuid }}" class="hidden">
+    <div class="content">
+        <div dir="auto">{{ full }}</div>
+
+        <div>
+            {% trans "Show less" as button_text %}
+            {% include 'snippets/toggle/close_button.html' with text=button_text controls_text="full" controls_uid=uuid class="is-small" %}
+        </div>
+    </div>
 </div>
 {% else %}
-<blockquote class="content"><span dir="auto">{{ full | to_markdown | safe }}</span></blockquote>
+<div class="content">
+    <div dir="auto">{{ full }}</div>
+</div>
 {% endif %}
 {% endwith %}
 
+{% endwith %}
 {% endif %}
 {% endwith %}
 

@@ -1,3 +1,8 @@
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 20%;
+}
+
 /* --- --- */
 .image {
     overflow: hidden;
@@ -9,25 +14,53 @@
 .card {
     overflow: visible;
 }
-.card-header-title {
+
+.scroll-x {
     overflow: hidden;
+    overflow-x: auto;
+}
+
+/* --- SHELVING --- */
+.shelf-option:disabled > *::after {
+    font-family: "icomoon";
+    content: "\e918";
+    margin-left: 0.5em;
 }
 
 /* --- TOGGLES --- */
-input.toggle-control {
+.toggle-button[aria-pressed=true], .toggle-button[aria-pressed=true]:hover {
+    background-color: hsl(171, 100%, 41%);
+    color: white;
+}
+.hide-active[aria-pressed=true], .hide-inactive[aria-pressed=false] {
     display: none;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
-
-input.toggle-control:checked ~ .toggle-content {
-    display: block;
+.hidden.transition-y, .hidden.transition-x {
+    display: block !important;
+    visibility: hidden !important;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
 }
-
-input.toggle-control:checked ~ .modal.toggle-content {
-    display: flex;
+.transition-y {
+    transition-property: height, margin-top, margin-bottom, padding-top, padding-bottom;
+    transition-duration: 0.5s;
+    transition-timing-function: ease;
+}
+.transition-x {
+    transition-property: width, margin-left, margin-right, padding-left, padding-right;
+    transition-duration: 0.5s;
+    transition-timing-function: ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .transition-x, .transition-y {
+        transition-duration: 0.001ms !important;
+    }
 }
 
 /* --- STARS --- */
@@ -62,8 +95,8 @@ input.toggle-control:checked ~ .modal.toggle-content {
     content: '\e9d9';
 }
 .form-rate-stars label.icon:hover:before {
-     content: '\e9d9';
- }
+    content: '\e9d9';
+}
 .form-rate-stars label.icon:hover ~ label.icon:before{
     content: '\e9d7';
 }
@@ -96,9 +129,6 @@ input.toggle-control:checked ~ .modal.toggle-content {
     }
     .cover-container.is-medium {
         height: 100px;
-    }
-    .cover-container.is-small {
-        height: 70px;
     }
 }
 
@@ -133,9 +163,15 @@ input.toggle-control:checked ~ .modal.toggle-content {
     vertical-align: middle;
     display: inline;
 }
-.navbar .avatar {
-    max-height: none;
+.is-32x32 {
+    min-width: 32px;
+    min-height: 32px;
 }
+.is-96x96 {
+    min-width: 96px;
+    min-height: 96px;
+}
+
 
 
 /* --- QUOTES --- */
@@ -148,11 +184,11 @@ input.toggle-control:checked ~ .modal.toggle-content {
     position: absolute;
 }
 .quote blockquote:before {
-    content: "\e905";
+    content: "\e906";
     top: 0;
     left: 0;
 }
 .quote blockquote:after {
-    content: "\e904";
+    content: "\e905";
     right: 0;
 }

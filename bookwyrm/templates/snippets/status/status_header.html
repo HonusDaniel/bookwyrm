@@ -1,0 +1,43 @@
+{% load bookwyrm_tags %}
+{% load i18n %}
+<a href="{{ status.user.local_path }}">
+{% include 'snippets/avatar.html' with user=status.user ariaHide="true" %}
+{{ status.user.display_name }}
+</a>
+
+{% if status.status_type == 'GeneratedNote' %}
+    {{ status.content | safe }}
+{% elif status.status_type == 'Rating' %}
+    {% trans "rated" %}
+{% elif status.status_type == 'Review' %}
+    {% trans "reviewed" %}
+{% elif status.status_type == 'Comment' %}
+    {% trans "commented on" %}
+{% elif status.status_type == 'Quotation' %}
+    {% trans "quoted" %}
+{% elif status.reply_parent %}
+    {% with parent_status=status|parent %}
+
+    {% if parent_status.status_type == 'Review' %}
+    {% blocktrans with username=parent_status.user.display_name user_path=parent_status.user.local_path status_path=parent_status.local_path %}replied to <a href="{{ user_path }}">{{ username}}'s</a> <a href="{{ status_path }}">review</a>{% endblocktrans %}
+    {% elif parent_status.status_type == 'Comment' %}
+    {% blocktrans with username=parent_status.user.display_name user_path=parent_status.user.local_path status_path=parent_status.local_path %}replied to <a href="{{ user_path }}">{{ username}}'s</a> <a href="{{ status_path }}">comment</a>{% endblocktrans %}
+    {% elif parent_status.status_type == 'Quotation' %}
+    {% blocktrans with username=parent_status.user.display_name user_path=parent_status.user.local_path status_path=parent_status.local_path %}replied to <a href="{{ user_path }}">{{ username}}'s</a> <a href="{{ status_path }}">quote</a>{% endblocktrans %}
+    {% else %}
+    {% blocktrans with username=parent_status.user.display_name user_path=parent_status.user.local_path status_path=parent_status.local_path %}replied to <a href="{{ user_path }}">{{ username}}'s</a> <a href="{{ status_path }}">status</a>{% endblocktrans %}
+    {% endif %}
+
+    {% endwith %}
+{% endif %}
+{% if status.book %}
+<a href="/book/{{ status.book.id }}">{{ status.book.title }}</a>
+{% elif status.mention_books %}
+<a href="/book/{{ status.mention_books.first.id }}">{{ status.mention_books.first.title }}</a>
+{% endif %}
+
+{% if status.progress %}
+<p class="help">
+    ({% if status.progress_mode == 'PG' %}page {{ status.progress }}{%else %}{{ status.progress }}%{% endif %})
+</p>
+{% endif %}
